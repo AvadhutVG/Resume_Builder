@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resume Builder</title>
+<style>
+body{font-family:Arial,sans-serif;margin:0;padding:0;background:#f0f4f8;color:#333}
+#app{max-width:900px;margin:auto;padding:20px}
+header{text-align:center;margin-bottom:20px}
+h1{color:#1e3a8a}
+form{background:#fff;padding:20px;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,.1)}
+input,textarea{width:100%;padding:10px;border:1px solid #ccc;border-radius:4px;margin:5px 0;box-sizing:border-box}
+button{cursor:pointer;padding:10px 15px;border:none;border-radius:4px;margin-top:5px}
+.btn-add{background:#007bff;color:#fff;width:100%}
+.btn-remove{background:#dc3545;color:#fff;width:100%}
+.btn-gen{background:#28a745;color:#fff;width:100%;font-weight:bold}
+#resume{max-width:800px;margin:20px auto;background:#fff;box-shadow:0 4px 10px rgba(0,0,0,.1);padding:30px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div id="app">
+<header><h1>Resume Builder</h1></header>
+<section id="form">
+<form onsubmit="gen(event)">
+<h3>Contact</h3>
+<input id="name" placeholder="Full Name" required>
+<input id="email" placeholder="Email" required>
+<input id="phone" placeholder="Phone">
+<h3>Summary</h3>
+<textarea id="summary" rows="3" required></textarea>
+<h3>Experience</h3>
+<div id="exp">
+<div class="block">
+<input name="title" placeholder="Job Title" required>
+<input name="company" placeholder="Company" required>
+<input name="dates" placeholder="Dates" required>
+<textarea name="desc" rows="2" placeholder="Achievements" required></textarea>
+<button type="button" class="btn-remove" onclick="rem(this)">Remove</button>
+</div>
+</div>
+<button type="button" class="btn-add" onclick="add('exp')">+ Add Experience</button>
+<h3>Education</h3>
+<div id="edu">
+<div class="block">
+<input name="degree" placeholder="Degree" required>
+<input name="inst" placeholder="Institution" required>
+<input name="edates" placeholder="Year" required>
+<button type="button" class="btn-remove" onclick="rem(this)">Remove</button>
+</div>
+</div>
+<button type="button" class="btn-add" onclick="add('edu')">+ Add Education</button>
+<h3>Skills</h3>
+<textarea id="skills" rows="2" placeholder="e.g. JavaScript, Python" required></textarea>
+<button type="submit" class="btn-gen">Generate Resume</button>
+</form>
+</section>
+<section id="out" class="hidden">
+<button onclick="edit()">← Edit</button>
+<div id="resume"></div>
+</section>
+</div>
+<script>
+const expT=`<div class="block"><input name="title" placeholder="Job Title" required><input name="company" placeholder="Company" required><input name="dates" placeholder="Dates" required><textarea name="desc" rows="2" placeholder="Achievements" required></textarea><button type="button" class="btn-remove" onclick="rem(this)">Remove</button></div>`;
+const eduT=`<div class="block"><input name="degree" placeholder="Degree" required><input name="inst" placeholder="Institution" required><input name="edates" placeholder="Year" required><button type="button" class="btn-remove" onclick="rem(this)">Remove</button></div>`;
+function add(t){document.getElementById(t).insertAdjacentHTML('beforeend',t==='exp'?expT:eduT)}
+function rem(b){b.parentElement.remove()}
+function gen(e){
+e.preventDefault();
+let d={name:val('name'),email:val('email'),phone:val('phone'),summary:val('summary'),skills:val('skills').split(',').map(x=>x.trim())};
+d.exp=[...document.querySelectorAll('#exp .block')].map(b=>({title:v(b,'title'),company:v(b,'company'),dates:v(b,'dates'),desc:v(b,'desc')}));
+d.edu=[...document.querySelectorAll('#edu .block')].map(b=>({degree:v(b,'degree'),inst:v(b,'inst'),edates:v(b,'edates')}));
+let h=`<h2>${d.name}</h2><p>${d.email} | ${d.phone}</p><hr><h3>Summary</h3><p>${d.summary}</p><h3>Skills</h3><p>${d.skills.join(', ')}</p>`;
+if(d.exp.length)h+=`<h3>Experience</h3>`+d.exp.map(x=>`<p><b>${x.title}</b> - ${x.company} (${x.dates})<br>${x.desc.replace(/\n/g,'<br>')}</p>`).join('');
+if(d.edu.length)h+=`<h3>Education</h3>`+d.edu.map(x=>`<p><b>${x.degree}</b> - ${x.inst} (${x.edates})</p>`).join('');
+res().innerHTML=h;
+form().classList.add('hidden');out().classList.remove('hidden');
+}
+function edit(){form().classList.remove('hidden');out().classList.add('hidden')}
+function val(id){return document.getElementById(id).value.trim()}
+function v(b,n){return b.querySelector(`[name="${n}"]`).value.trim()}
+function form(){return document.getElementById('form')}
+function out(){return document.getElementById('out')}
+function res(){return document.getElementById('resume')}
+</script>
+</body>
+</html>
